@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "esnext"
+    ],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/controllers/*": [
+        "src/controllers/*"
+      ],
+      "@/models/*": [
+        "src/models/*"
+      ],
+      "@/routes/*": [
+        "src/routes/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
+      ],
+      "@/db/*": [
+        "src/db/*"
+      ],
+      "@/middlewares/*": [
+        "src/middlewares/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ]
+    }
+  }
+}
