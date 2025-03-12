@@ -3,6 +3,9 @@
     "lib": [
       "esnext"
     ],
+    "types": [
+      "@fastify/cookie"
+    ],
     "target": "ESNext",
     "module": "ESNext",
     "moduleDetection": "force",

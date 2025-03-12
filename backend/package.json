@@ -3,9 +3,13 @@
 	"module": "index.ts",
 	"type": "module",
 	"private": true,
+	"scripts": {
+		"dev": "bun --hot run index.ts"
+	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
 		"@types/bun": "latest",
+		"@types/jsonwebtoken": "^9.0.9",
 		"@types/node": "^22.13.10",
 		"@types/pg": "^8.11.11",
 		"drizzle-kit": "^0.30.5"
@@ -14,11 +18,13 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
+		"@fastify/cookie": "^11.0.2",
 		"dotenv": "^16.4.7",
 		"drizzle-orm": "^0.40.0",
 		"fastify": "^5.2.1",
 		"jsonwebtoken": "^9.0.2",
 		"pg": "^8.13.3",
-		"tsconfig-paths": "^4.2.0"
+		"tsconfig-paths": "^4.2.0",
+		"zod": "^3.24.2"
 	}
 }
