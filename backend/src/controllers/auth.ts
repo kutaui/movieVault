@@ -2,7 +2,7 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "@/db/index";
 import { users } from "@/db/schema";
-import jwt from "@/utils/jwt";
+import { createToken } from "@/utils/jwt";
 
 const GOOGLE_OAUTH_URL = process.env.GOOGLE_OAUTH_URL;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -32,14 +32,14 @@ const TokenInfoSchema = z.object({
 	name: z.string(),
 });
 
-async function GoogleLogin(req: FastifyRequest, res: FastifyReply) {
+export async function GoogleLogin(req: FastifyRequest, res: FastifyReply) {
 	const state = "some_state";
 	const scopes = GOOGLE_OAUTH_SCOPES.join(" ");
 	const GOOGLE_OAUTH_CONSENT_SCREEN_URL = `${GOOGLE_OAUTH_URL}?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_CALLBACK_URL}&access_type=offline&response_type=code&state=${state}&scope=${scopes}`;
 	return res.redirect(GOOGLE_OAUTH_CONSENT_SCREEN_URL);
 }
 
-async function GoogleCallback(
+export async function GoogleCallback(
 	req: FastifyRequest<{ Querystring: CallbackQueryString }>,
 	res: FastifyReply,
 ) {
@@ -80,7 +80,7 @@ async function GoogleCallback(
 			return res.send({ error: "Failed to login via Google" });
 		}
 
-		const token = jwt.createToken({ userId: newUserData.id });
+		const token = createToken({ userId: newUserData.id });
 
 		res.setCookie("token", token, {
 			httpOnly: false,
@@ -91,7 +91,7 @@ async function GoogleCallback(
 		return res.redirect("/");
 	}
 
-	const token = jwt.createToken({ userId: user.id });
+	const token = createToken({ userId: user.id });
 	res.setCookie("token", token, {
 		httpOnly: false,
 		sameSite: "lax",
@@ -101,4 +101,3 @@ async function GoogleCallback(
 	return res.redirect("/");
 }
 
-export default { GoogleLogin, GoogleCallback };

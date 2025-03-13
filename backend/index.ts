@@ -1,9 +1,8 @@
+import { GoogleCallback, GoogleLogin } from "@/controllers/auth";
+import { AuthMiddleware } from "@/middlewares/auth";
 import cookie from "@fastify/cookie";
-import type { FastifyCookieOptions } from "@fastify/cookie";
+import FastifyMiddleware from "@fastify/middie";
 import Fastify from "fastify";
-
-import auth from "@/controllers/auth";
-import jwt from "@/utils/jwt";
 
 const fastify = Fastify({
 	logger: true,
@@ -18,9 +17,13 @@ fastify.get("/", async (req, res) => {
 	res.send({ hello: "world" });
 });
 
-fastify.get("/auth/google", auth.GoogleLogin);
+fastify.get("/auth/google", GoogleLogin);
 
-fastify.get("/google/callback", auth.GoogleCallback);
+fastify.get("/google/callback", GoogleCallback);
+
+fastify.get("/movies", { preHandler: AuthMiddleware }, async (req, res) => {
+	return res.send({ movies: [] });
+});
 
 fastify.listen({ port: 3099 }, (err, address) => {
 	if (err) {
