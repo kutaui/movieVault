@@ -18,7 +18,6 @@ fastify.get("/", async (req, res) => {
 });
 
 fastify.get("/auth/google", GoogleLogin);
-
 fastify.get("/google/callback", GoogleCallback);
 
 fastify.get("/movies", { preHandler: AuthMiddleware }, async (req, res) => {

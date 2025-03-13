@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { db } from "@/db/index";
-import { users } from "@/db/schema";
+import { users } from "@/db/schema/user";
 import { createToken } from "@/utils/jwt";
 
 const GOOGLE_OAUTH_URL = process.env.GOOGLE_OAUTH_URL;
