@@ -1,5 +1,5 @@
 import { GoogleCallback, GoogleLogin } from '@/controllers/auth'
-import type { FastifyInstance } from 'fastify'
+import type { FastifyInstance, FastifyRegisterOptions } from 'fastify'
 
 export const authSchemas = {
 	googleLogin: {
@@ -32,8 +32,11 @@ export const authSchemas = {
 	},
 }
 
-export function registerAuthRoutes(fastify: FastifyInstance) {
-	fastify.get('/auth/google', {
+export function registerAuthRoutes(
+	fastify: FastifyInstance,
+	opts?: FastifyRegisterOptions<FastifyInstance>
+) {
+	fastify.get('/google', {
 		schema: authSchemas.googleLogin,
 		handler: GoogleLogin,
 	})

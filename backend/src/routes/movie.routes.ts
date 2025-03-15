@@ -2,7 +2,9 @@ import {
 	GetAllMoviesByGenrePaginated,
 	GetAllMoviesPaginated,
 	GetMovieById,
+	PostMovie,
 } from '@/controllers/movie'
+import { AuthMiddleware } from '@/middlewares/auth'
 import type { FastifyInstance } from 'fastify'
 
 export const movieSchemas = {
@@ -150,21 +152,47 @@ export const movieSchemas = {
 			},
 		},
 	},
+	postMovie: {
+		tags: ['movies'],
+		description: 'Create a new movie',
+		body: {
+			type: 'object',
+			properties: {
+				title: { type: 'string' },
+				description: { type: 'string' },
+				releaseDate: { type: 'string', format: 'date' },
+				rating: { type: 'integer' },
+				image: { type: 'string' },
+				trailer: { type: 'string' },
+				genres: { type: 'array', items: { type: 'integer' } },
+			},
+		},
+		response: {
+			200: { type: 'object' },
+			500: { type: 'object' },
+		},
+	},
 }
 
 export function registerMovieRoutes(fastify: FastifyInstance) {
-	fastify.get('/movies', {
+	fastify.get('/', {
 		schema: movieSchemas.getAllMovies,
 		handler: GetAllMoviesPaginated,
 	})
 
-	fastify.get('/movies/:id', {
+	fastify.get('/:id', {
 		schema: movieSchemas.getMovieById,
 		handler: GetMovieById,
 	})
 
-	fastify.get('/movies/genre/:genre', {
+	fastify.get('/genre/:genre', {
 		schema: movieSchemas.getMoviesByGenre,
 		handler: GetAllMoviesByGenrePaginated,
+	})
+
+	fastify.post('/', {
+		schema: movieSchemas.postMovie,
+		handler: PostMovie,
+		preHandler: AuthMiddleware,
 	})
 }

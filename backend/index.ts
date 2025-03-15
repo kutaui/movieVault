@@ -1,11 +1,12 @@
 import { swaggerConfig } from '@/config/swagger'
+import { registerAuthRoutes } from '@/routes/auth.routes'
+import { registerGenreRoutes } from '@/routes/genre.routes'
+import { registerMovieRoutes } from '@/routes/movie.routes'
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
 import swaggerUI from '@fastify/swagger-ui'
 import Fastify from 'fastify'
-import { registerAuthRoutes } from '@/routes/auth.routes'
-import { registerMovieRoutes } from '@/routes/movie.routes'
 
 const fastify = Fastify({
 	logger: true,
@@ -22,23 +23,41 @@ await fastify.register(cookie, {
 })
 await fastify.register(swagger, swaggerConfig)
 await fastify.register(swaggerUI, {
-	routePrefix: '/documentation',
+	routePrefix: '/',
 	uiConfig: {
 		docExpansion: 'full',
 		deepLinking: false,
 	},
 })
 
-registerAuthRoutes(fastify)
-registerMovieRoutes(fastify)
+fastify.register(
+	async (fastify) => {
+		await fastify.register(
+			async (fastify) => {
+				await registerAuthRoutes(fastify)
+			},
+			{ prefix: '/auth' }
+		)
 
-fastify.get('/openapi.json', (req, reply) => {
-	reply.send(fastify.swagger())
-})
+		await fastify.register(
+			async (fastify) => {
+				await registerMovieRoutes(fastify)
+			},
+			{ prefix: '/movies' }
+		)
+
+		await fastify.register(
+			async (fastify) => {
+				await registerGenreRoutes(fastify)
+			},
+			{ prefix: '/genres' }
+		)
+	},
+	{ prefix: '/api' }
+)
 
 fastify.ready().then(() => {
 	fastify.swagger()
-	fastify.log.info('Swagger documentation is available at /documentation')
 })
 
 fastify.listen({ port: Number(process.env.PORT) }, (err, address) => {
