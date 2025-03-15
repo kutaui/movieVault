@@ -4,11 +4,12 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "bun --hot run index.ts"
+		"dev": "bun --hot run index.ts",
+		"test": "bun test tests"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@types/bun": "latest",
+		"@types/bun": "^1.2.5",
 		"@types/jsonwebtoken": "^9.0.9",
 		"@types/node": "^22.13.10",
 		"@types/pg": "^8.11.11",
