@@ -9,6 +9,8 @@ declare global {
 			GOOGLE_ACCESS_TOKEN_URL: string;
 			GOOGLE_TOKEN_INFO_URL: string;
 			JWT_SECRET: string;
+			PORT: string;
+			SERVER_URL: string;
 		}
 	}
 }

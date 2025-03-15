@@ -41,7 +41,7 @@ fastify.ready().then(() => {
 	fastify.log.info('Swagger documentation is available at /documentation')
 })
 
-fastify.listen({ port: 3099 }, (err, address) => {
+fastify.listen({ port: Number(process.env.PORT) }, (err, address) => {
 	if (err) {
 		fastify.log.error(err)
 		process.exit(1)
