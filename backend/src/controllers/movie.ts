@@ -107,13 +107,13 @@ export async function GetAllMoviesByGenrePaginated(
 }
 
 const movieSchema = z.object({
-	title: z.string(),
-	description: z.string(),
-	releaseDate: z.string(),
-	rating: z.number(),
-	image: z.string(),
-	trailer: z.string(),
-	genres: z.array(z.number()),
+	title: z.string().min(1, 'Title is required'),
+	description: z.string().min(1, 'Description is required'),
+	releaseDate: z.string().min(1, 'Release date is required'),
+	rating: z.number().min(0).max(100),
+	image: z.string().min(1, 'Image URL is required'),
+	trailer: z.string().min(1, 'Trailer URL is required'),
+	genres: z.array(z.number()).min(1, 'At least one genre is required'),
 })
 
 export async function PostMovie(

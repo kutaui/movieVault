@@ -34,21 +34,21 @@ fastify.register(
 	async (fastify) => {
 		await fastify.register(
 			async (fastify) => {
-				await registerAuthRoutes(fastify)
+				registerAuthRoutes(fastify)
 			},
 			{ prefix: '/auth' }
 		)
 
 		await fastify.register(
 			async (fastify) => {
-				await registerMovieRoutes(fastify)
+				registerMovieRoutes(fastify)
 			},
 			{ prefix: '/movies' }
 		)
 
 		await fastify.register(
 			async (fastify) => {
-				await registerGenreRoutes(fastify)
+				registerGenreRoutes(fastify)
 			},
 			{ prefix: '/genres' }
 		)
