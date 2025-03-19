@@ -11,6 +11,8 @@ declare global {
 			JWT_SECRET: string;
 			PORT: string;
 			SERVER_URL: string;
+			REDIS_HOST: string;
+			REDIS_PORT: string;
 		}
 	}
 }
