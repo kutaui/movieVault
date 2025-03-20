@@ -1,7 +1,7 @@
 import { db } from '@/db/index'
-import { genres, movies, movieToGenre } from '@/db/schema/movie'
+import { genres, movieToGenre, movies } from '@/db/schema/movie'
 import { Pagination } from '@/utils/pagination'
-import { count, eq, ilike, or, and } from 'drizzle-orm'
+import { and, count, eq, ilike, or } from 'drizzle-orm'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
 

@@ -1,5 +1,6 @@
 import { swaggerConfig } from '@/config/swagger'
 import { registerAuthRoutes } from '@/routes/auth.routes'
+import { registerFavoriteRoutes } from '@/routes/favorite.routes'
 import { registerGenreRoutes } from '@/routes/genre.routes'
 import { registerMovieRoutes } from '@/routes/movie.routes'
 import cookie from '@fastify/cookie'
@@ -51,6 +52,13 @@ fastify.register(
 				registerGenreRoutes(fastify)
 			},
 			{ prefix: '/genres' }
+		)
+
+		await fastify.register(
+			async (fastify) => {
+				registerFavoriteRoutes(fastify)
+			},
+			{ prefix: '/favorites' }
 		)
 	},
 	{ prefix: '/api' }

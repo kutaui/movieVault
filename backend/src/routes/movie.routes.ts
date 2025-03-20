@@ -3,8 +3,8 @@ import {
 	GetAllMoviesPaginated,
 	GetMovieById,
 	PostMovie,
-} from '@/controllers/movie'
-import { AuthMiddleware } from '@/middlewares/auth'
+} from '@/controllers/movie.controller'
+import { AuthMiddleware } from '@/middlewares/auth.middleware'
 import type { FastifyInstance } from 'fastify'
 
 export const movieSchemas = {

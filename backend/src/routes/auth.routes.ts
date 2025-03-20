@@ -3,7 +3,7 @@ import {
 	GoogleLogin,
 	Login,
 	Register,
-} from '@/controllers/auth'
+} from '@/controllers/auth.controller'
 import type { FastifyInstance, FastifyRegisterOptions } from 'fastify'
 
 export const authSchemas = {

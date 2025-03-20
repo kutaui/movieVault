@@ -1,14 +1,8 @@
 import { verifyToken } from '@/utils/jwt'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 
-interface TokenPayload {
+type TokenPayload = {
 	userId: string
-}
-
-declare module 'fastify' {
-	interface FastifyRequest {
-		user?: TokenPayload
-	}
 }
 
 export async function AuthMiddleware(

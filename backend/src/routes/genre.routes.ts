@@ -1,5 +1,5 @@
-import { GetAllGenres } from '@/controllers/genre'
-import { GetGenreById } from '@/controllers/genre'
+import { GetAllGenres } from '@/controllers/genre.controller'
+import { GetGenreById } from '@/controllers/genre.controller'
 import type { FastifyInstance, FastifyRegisterOptions } from 'fastify'
 
 export const genreSchemas = {
