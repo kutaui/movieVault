@@ -7,7 +7,7 @@ import { z } from 'zod'
 
 export async function GetAllMoviesPaginated(
 	req: FastifyRequest<{
-		Querystring: PaginationQueryString<{ search: string }>
+		Querystring: PaginationQueryStringType<{ search: string }>
 	}>,
 	res: FastifyReply
 ) {
@@ -101,7 +101,7 @@ export async function GetMovieById(
 
 export async function GetAllMoviesByGenrePaginated(
 	req: FastifyRequest<{
-		Querystring: PaginationQueryString<{ search: string }>
+		Querystring: PaginationQueryStringType<{ search: string }>
 		Params: { genre: number }
 	}>,
 	res: FastifyReply
@@ -219,7 +219,7 @@ const movieSchema = z.object({
 })
 
 export async function PostMovie(
-	req: FastifyRequest<{ Body: Movie }>,
+	req: FastifyRequest<{ Body: MovieType }>,
 	res: FastifyReply
 ) {
 	const movie = movieSchema.parse(req.body)

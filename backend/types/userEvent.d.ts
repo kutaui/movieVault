@@ -1,0 +1,13 @@
+type UserEventType =
+	| 'HOVER'
+	| 'DETAIL_VIEW'
+	| 'PLAY'
+	| 'PAUSE'
+	| 'STOP'
+	| 'ADD_FAVORITE'
+	| 'REMOVE_FAVORITE'
+	| 'SEARCH'
+	| 'GENRE'
+	| 'SHARE'
+	| 'WATCH_TRAILER'
+	| 'CUSTOM_RECOMMENDATION_CLICK'

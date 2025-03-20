@@ -1,7 +1,7 @@
 import {
 	DeleteUserFavoriteMovie,
 	GetAllUserFavoriteMovies,
-	PutUserFavoriteMovie,
+	PostUserFavoriteMovie
 } from '@/controllers/favorite.controller'
 import { AuthMiddleware } from '@/middlewares/auth.middleware'
 import type { FastifyInstance } from 'fastify'
@@ -14,9 +14,16 @@ export const favoriteSchemas = {
 			type: 'object',
 			properties: {
 				page: { type: 'number', default: 1, description: 'Page number' },
-				limit: { type: 'number', default: 10, description: 'Number of items per page' },
-				search: { type: 'string', description: 'Search term to filter favorites' }
-			}
+				limit: {
+					type: 'number',
+					default: 10,
+					description: 'Number of items per page',
+				},
+				search: {
+					type: 'string',
+					description: 'Search term to filter favorites',
+				},
+			},
 		},
 		response: {
 			200: {
@@ -69,7 +76,7 @@ export const favoriteSchemas = {
 			},
 		},
 	},
-	putFavorite: {
+	postFavorite: {
 		tags: ['favorites'],
 		description: 'Add a movie to user favorites',
 		params: {
@@ -168,8 +175,8 @@ export function registerFavoriteRoutes(fastify: FastifyInstance) {
 	})
 
 	fastify.put('/:movieId', {
-		schema: favoriteSchemas.putFavorite,
-		handler: PutUserFavoriteMovie,
+		schema: favoriteSchemas.postFavorite,
+		handler: PostUserFavoriteMovie,
 		preHandler: AuthMiddleware,
 	})
 

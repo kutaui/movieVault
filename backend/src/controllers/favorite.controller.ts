@@ -7,7 +7,7 @@ import type { FastifyReply, FastifyRequest } from 'fastify'
 
 export async function GetAllUserFavoriteMovies(
 	req: FastifyRequest<{
-		Querystring: PaginationQueryString<{ search: string }>
+		Querystring: PaginationQueryStringType<{ search: string }>
 	}>,
 	res: FastifyReply
 ) {
@@ -97,7 +97,7 @@ export async function GetAllUserFavoriteMovies(
 	}
 }
 
-export async function PutUserFavoriteMovie(
+export async function PostUserFavoriteMovie(
 	req: FastifyRequest<{ Params: { movieId: number } }>,
 	res: FastifyReply
 ) {

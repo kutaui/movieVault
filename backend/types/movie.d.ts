@@ -1,4 +1,4 @@
-type Movie = {
+type MovieType = {
 	id: number
 	title: string
 	description: string
@@ -12,7 +12,7 @@ type Movie = {
 	deletedAt: string
 }
 
-type Genre = {
+type GenreType = {
 	id: number
 	name: string
 }

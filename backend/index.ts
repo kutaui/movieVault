@@ -3,6 +3,7 @@ import { registerAuthRoutes } from '@/routes/auth.routes'
 import { registerFavoriteRoutes } from '@/routes/favorite.routes'
 import { registerGenreRoutes } from '@/routes/genre.routes'
 import { registerMovieRoutes } from '@/routes/movie.routes'
+import { registerUserEventsRoutes } from '@/routes/userEvents.routes'
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
@@ -22,6 +23,7 @@ await fastify.register(cookie, {
 	secret: process.env.COOKIE_SECRET,
 	parseOptions: {},
 })
+
 await fastify.register(swagger, swaggerConfig)
 await fastify.register(swaggerUI, {
 	routePrefix: '/',
@@ -59,6 +61,13 @@ fastify.register(
 				registerFavoriteRoutes(fastify)
 			},
 			{ prefix: '/favorites' }
+		)
+
+		await fastify.register(
+			async (fastify) => {
+				registerUserEventsRoutes(fastify)
+			},
+			{ prefix: '/events' }
 		)
 	},
 	{ prefix: '/api' }
