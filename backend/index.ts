@@ -1,5 +1,6 @@
 import { swaggerConfig } from '@/config/swagger'
 import { registerAuthRoutes } from '@/routes/auth.routes'
+import { registerCommentRoutes } from '@/routes/comment.routes'
 import { registerFavoriteRoutes } from '@/routes/favorite.routes'
 import { registerGenreRoutes } from '@/routes/genre.routes'
 import { registerMovieRoutes } from '@/routes/movie.routes'
@@ -76,6 +77,13 @@ fastify.register(
 				registerUserEventsRoutes(fastify)
 			},
 			{ prefix: '/events' }
+		)
+
+		await fastify.register(
+			async (fastify) => {
+				registerCommentRoutes(fastify)
+			},
+			{ prefix: '/comments' }
 		)
 	},
 	{ prefix: '/api' }
