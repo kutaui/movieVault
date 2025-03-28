@@ -1,25 +1,27 @@
 import {
+	boolean,
 	integer,
 	pgEnum,
 	pgTable,
 	timestamp,
 	varchar,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core'
 
-export const roleEnum = pgEnum("role_enum", [
-	"ADMIN",
-	"USER",
-	"SUPER_ADMIN",
-	"FAKE_ADMIN",
-]);
+export const roleEnum = pgEnum('role_enum', [
+	'ADMIN',
+	'USER',
+	'SUPER_ADMIN',
+	'FAKE_ADMIN',
+])
 
-export const users = pgTable("users", {
+export const users = pgTable('users', {
 	id: integer().primaryKey().generatedAlwaysAsIdentity(),
 	name: varchar({ length: 255 }).notNull(),
 	email: varchar({ length: 255 }).notNull().unique(),
 	password: varchar({ length: 255 }),
-	role: roleEnum("role").notNull().default("USER"),
-	createdAt: timestamp("created_at").notNull().defaultNow(),
-	updatedAt: timestamp("updated_at").notNull().defaultNow(),
-	deletedAt: timestamp("deleted_at"),
-});
+	role: roleEnum('role').notNull().default('USER'),
+	isFavoritesPublic: boolean('is_favorites_public').notNull().default(false),
+	createdAt: timestamp('created_at').notNull().defaultNow(),
+	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+	deletedAt: timestamp('deleted_at'),
+})

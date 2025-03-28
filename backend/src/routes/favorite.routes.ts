@@ -1,7 +1,9 @@
 import {
 	DeleteUserFavoriteMovie,
-	GetAllUserFavoriteMovies,
-	PostUserFavoriteMovie
+	GetUserAllFavoriteMovies,
+	GetUserPublicFavorites,
+	PostUserFavoriteMovie,
+	ToggleFavoritesPublic,
 } from '@/controllers/favorite.controller'
 import { AuthMiddleware } from '@/middlewares/auth.middleware'
 import type { FastifyInstance } from 'fastify'
@@ -165,12 +167,130 @@ export const favoriteSchemas = {
 			},
 		},
 	},
+	toggleFavoritesPublic: {
+		tags: ['favorites'],
+		description: 'Toggle the public status of all user favorites',
+		response: {
+			200: {
+				description: 'Favorites visibility updated successfully',
+				type: 'object',
+				properties: {
+					message: { type: 'string' },
+					isPublic: { type: 'boolean' },
+				},
+			},
+			401: {
+				description: 'Unauthorized',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+			404: {
+				description: 'Not found',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+			500: {
+				description: 'Server error',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+		},
+	},
+	getUserPublicFavorites: {
+		tags: ['favorites'],
+		description: 'Get public favorite movies for a specified user',
+		params: {
+			type: 'object',
+			properties: {
+				userId: { type: 'number', description: 'User ID' },
+			},
+			required: ['userId'],
+		},
+		querystring: {
+			type: 'object',
+			properties: {
+				page: { type: 'number', default: 1, description: 'Page number' },
+				limit: {
+					type: 'number',
+					default: 10,
+					description: 'Number of items per page',
+				},
+				search: {
+					type: 'string',
+					description: 'Search term to filter favorites',
+				},
+			},
+		},
+		response: {
+			200: {
+				description: 'List of favorite movies',
+				type: 'object',
+				properties: {
+					data: {
+						type: 'array',
+						items: {
+							type: 'object',
+							properties: {
+								id: { type: 'number' },
+								title: { type: 'string' },
+								description: { type: 'string' },
+								releaseDate: { type: 'string', format: 'date' },
+								rating: { type: 'number' },
+								image: { type: 'string' },
+								trailer: { type: 'string' },
+							},
+						},
+					},
+					meta: {
+						type: 'object',
+						properties: {
+							page: { type: 'number' },
+							perPage: { type: 'number' },
+							totalPages: { type: 'number' },
+							currentPage: { type: 'number' },
+							previousPage: { type: 'number' },
+							nextPage: { type: 'number' },
+							isFirstPage: { type: 'boolean' },
+							isLastPage: { type: 'boolean' },
+						},
+					},
+				},
+			},
+			403: {
+				description: 'Forbidden - favorites are private',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+			404: {
+				description: 'User not found',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+			500: {
+				description: 'Server error',
+				type: 'object',
+				properties: {
+					error: { type: 'string' },
+				},
+			},
+		},
+	},
 }
 
 export function registerFavoriteRoutes(fastify: FastifyInstance) {
 	fastify.get('/', {
 		schema: favoriteSchemas.getFavorites,
-		handler: GetAllUserFavoriteMovies,
+		handler: GetUserAllFavoriteMovies,
 		preHandler: AuthMiddleware,
 	})
 
@@ -184,5 +304,16 @@ export function registerFavoriteRoutes(fastify: FastifyInstance) {
 		schema: favoriteSchemas.deleteFavorite,
 		handler: DeleteUserFavoriteMovie,
 		preHandler: AuthMiddleware,
+	})
+
+	fastify.patch('/toggle-public', {
+		schema: favoriteSchemas.toggleFavoritesPublic,
+		handler: ToggleFavoritesPublic,
+		preHandler: AuthMiddleware,
+	})
+
+	fastify.get('/public/:userId', {
+		schema: favoriteSchemas.getUserPublicFavorites,
+		handler: GetUserPublicFavorites,
 	})
 }
