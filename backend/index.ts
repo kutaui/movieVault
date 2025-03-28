@@ -4,6 +4,7 @@ import { registerFavoriteRoutes } from '@/routes/favorite.routes'
 import { registerGenreRoutes } from '@/routes/genre.routes'
 import { registerMovieRoutes } from '@/routes/movie.routes'
 import { registerUserEventsRoutes } from '@/routes/userEvents.routes'
+import { registerWatchlistRoutes } from '@/routes/watchlist.routes'
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import swagger from '@fastify/swagger'
@@ -61,6 +62,13 @@ fastify.register(
 				registerFavoriteRoutes(fastify)
 			},
 			{ prefix: '/favorites' }
+		)
+
+		await fastify.register(
+			async (fastify) => {
+				registerWatchlistRoutes(fastify)
+			},
+			{ prefix: '/watchlist' }
 		)
 
 		await fastify.register(
