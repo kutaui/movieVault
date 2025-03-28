@@ -6,10 +6,10 @@ type MovieType = {
 	rating: number
 	image: string
 	trailer: string
-	genres: Genre[]
-	createdAt: string
-	updatedAt: string
-	deletedAt: string
+	genres?: GenreType[]
+	createdAt?: string
+	updatedAt?: string
+	deletedAt?: string
 }
 
 type GenreType = {

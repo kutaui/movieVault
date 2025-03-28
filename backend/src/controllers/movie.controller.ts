@@ -1,9 +1,11 @@
 import { db } from '@/db/index'
 import { genres, movieToGenre, movies } from '@/db/schema/movie'
 import { Pagination } from '@/utils/pagination'
-import { and, count, eq, ilike, or } from 'drizzle-orm'
+import { and, count, eq, ilike, or, sql } from 'drizzle-orm'
+import type { SQL } from 'drizzle-orm'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import { z } from 'zod'
+import { applyMovieOrdering, getMovieSelectClause } from '@/lib/movie'
 
 export async function GetAllMoviesPaginated(
 	req: FastifyRequest<{
@@ -11,75 +13,63 @@ export async function GetAllMoviesPaginated(
 	}>,
 	res: FastifyReply
 ) {
-	const { page, limit, search } = req.query
+	const { page, limit, search, orderBy = 'rating', order = 'desc' } = req.query
+	const offset = (page - 1) * limit
 
-	if (search && search.trim() !== '') {
-		const searchTerm = `%${search}%`
-		const whereCondition = or(
-			ilike(movies.title, searchTerm),
-			ilike(movies.description, searchTerm)
-		)
+	try {
+		const selectClause = getMovieSelectClause()
 
-		const filteredMovies = await db
-			.select({
-				id: movies.id,
-				title: movies.title,
-				description: movies.description,
-				releaseDate: movies.releaseDate,
-				rating: movies.rating,
-				image: movies.image,
-				trailer: movies.trailer,
-			})
-			.from(movies)
-			.where(whereCondition)
-			.limit(limit)
-			.offset((page - 1) * limit)
+		let results: MovieType[] = []
+		let totalCount = 0
 
-		const [totalResult] = await db
-			.select({ total: count() })
-			.from(movies)
-			.where(whereCondition)
+		if (search && search.trim() !== '') {
+			const searchTerm = `%${search}%`
+			const searchCondition = or(
+				ilike(movies.title, searchTerm),
+				ilike(movies.description, searchTerm)
+			)
 
-		if (!totalResult) {
-			return res.status(500).send({ error: 'Failed to fetch total count' })
+			results = (await db
+				.select(selectClause)
+				.from(movies)
+				.where(searchCondition)
+				.orderBy(applyMovieOrdering(orderBy, order))
+				.limit(limit)
+				.offset(offset)) as MovieType[]
+
+			const [countResult] = await db
+				.select({ total: count() })
+				.from(movies)
+				.where(searchCondition)
+
+			if (countResult) {
+				totalCount = countResult.total
+			}
+		} else {
+			results = (await db
+				.select(selectClause)
+				.from(movies)
+				.orderBy(applyMovieOrdering(orderBy, order))
+				.limit(limit)
+				.offset(offset)) as MovieType[]
+
+			const [countResult] = await db.select({ total: count() }).from(movies)
+
+			if (countResult) {
+				totalCount = countResult.total
+			}
 		}
 
-		const totalCount = totalResult.total
 		const pagination = Pagination(page, limit, totalCount)
 
 		return res.send({
-			data: filteredMovies,
+			data: results,
 			meta: pagination,
 		})
+	} catch (error) {
+		console.error('Error fetching movies:', error)
+		return res.status(500).send({ error: 'Failed to fetch movies' })
 	}
-
-	const allMovies = await db
-		.select({
-			id: movies.id,
-			title: movies.title,
-			description: movies.description,
-			releaseDate: movies.releaseDate,
-			rating: movies.rating,
-			image: movies.image,
-			trailer: movies.trailer,
-		})
-		.from(movies)
-		.limit(limit)
-		.offset((page - 1) * limit)
-
-	const [totalResult] = await db.select({ total: count() }).from(movies)
-
-	if (!totalResult) {
-		return res.status(500).send({ error: 'Failed to fetch total count' })
-	}
-
-	const totalCount = totalResult.total
-	const pagination = Pagination(page, limit, totalCount)
-
-	return res.send({
-		data: allMovies,
-		meta: pagination,
-	})
 }
 
 export async function GetMovieById(
@@ -87,8 +77,10 @@ export async function GetMovieById(
 	res: FastifyReply
 ) {
 	const { id } = req.params
+	const selectClause = getMovieSelectClause()
+
 	const movie = await db
-		.select()
+		.select(selectClause)
 		.from(movies)
 		.where(eq(movies.id, Number(id)))
 
@@ -106,106 +98,128 @@ export async function GetAllMoviesByGenrePaginated(
 	}>,
 	res: FastifyReply
 ) {
-	const { page, limit, search } = req.query
+	const { page, limit, search, orderBy = 'rating', order = 'desc' } = req.query
 	const { genre } = req.params
+	const offset = (page - 1) * limit
 
-	if (search && search.trim() !== '') {
-		const searchTerm = `%${search}%`
-		const searchCondition = or(
-			ilike(movies.title, searchTerm),
-			ilike(movies.description, searchTerm)
-		)
-		const fullCondition = and(eq(genres.id, genre), searchCondition)
+	try {
+		const movieIdsInGenre = await db
+			.select({ id: movieToGenre.movieId })
+			.from(movieToGenre)
+			.where(eq(movieToGenre.genreId, genre))
 
-		const filteredMovies = await db
-			.select({
-				movies: {
-					id: movies.id,
-					title: movies.title,
-					description: movies.description,
-					releaseDate: movies.releaseDate,
-					rating: movies.rating,
-					image: movies.image,
-					trailer: movies.trailer,
-				},
-				genres: {
-					id: genres.id,
-					name: genres.name,
-				},
-			})
-			.from(movies)
-			.innerJoin(movieToGenre, eq(movies.id, movieToGenre.movieId))
-			.innerJoin(genres, eq(movieToGenre.genreId, genres.id))
-			.where(fullCondition)
-			.limit(limit)
-			.offset((page - 1) * limit)
-
-		const [totalResult] = await db
-			.select({ total: count() })
-			.from(movies)
-			.innerJoin(movieToGenre, eq(movies.id, movieToGenre.movieId))
-			.innerJoin(genres, eq(movieToGenre.genreId, genres.id))
-			.where(fullCondition)
-
-		if (!totalResult) {
-			return res.status(500).send({ error: 'Failed to fetch total count' })
+		if (!movieIdsInGenre || movieIdsInGenre.length === 0) {
+			return res.status(404).send({ error: 'No movies found in this genre' })
 		}
 
-		const totalCount = totalResult.total
+		const ids = movieIdsInGenre.map((m) => m.id)
 
-		if (!filteredMovies || filteredMovies.length === 0) {
-			return res.status(404).send({ error: 'Movies not found' })
+		const selectClause = getMovieSelectClause()
+
+		let moviesResult: MovieType[] = []
+		let totalCount = 0
+
+		const idsCondition = sql`${movies.id} IN (${ids.join(',')})`
+
+		if (search && search.trim() !== '') {
+			const searchTerm = `%${search}%`
+			const searchCondition = or(
+				ilike(movies.title, searchTerm),
+				ilike(movies.description, searchTerm)
+			)
+
+			moviesResult = (await db
+				.select(selectClause)
+				.from(movies)
+				.where(and(idsCondition, searchCondition))
+				.orderBy(applyMovieOrdering(orderBy, order))
+				.limit(limit)
+				.offset(offset)) as MovieType[]
+
+			const [countResult] = await db
+				.select({ total: count() })
+				.from(movies)
+				.where(and(idsCondition, searchCondition))
+
+			if (countResult) {
+				totalCount = countResult.total
+			} else {
+				totalCount = 0
+			}
+		} else {
+			moviesResult = (await db
+				.select(selectClause)
+				.from(movies)
+				.where(idsCondition)
+				.orderBy(applyMovieOrdering(orderBy, order))
+				.limit(limit)
+				.offset(offset)) as MovieType[]
+
+			totalCount = ids.length
+		}
+
+		if (!moviesResult || moviesResult.length === 0) {
+			return res.status(404).send({ error: 'No movies found' })
+		}
+
+		const movieIds = moviesResult.map((m: MovieType) => m.id).join(',')
+		const movieGenresResult = await db
+			.select({
+				movieId: movieToGenre.movieId,
+				genreId: genres.id,
+				genreName: genres.name,
+			})
+			.from(genres)
+			.innerJoin(movieToGenre, eq(genres.id, movieToGenre.genreId))
+			.where(sql`${movieToGenre.movieId} IN (${movieIds})`)
+
+		const combinedResults = moviesResult.map((movie: MovieType) => ({
+			...movie,
+			genres: movieGenresResult
+				.filter((mg) => mg.movieId === movie.id)
+				.map((mg) => ({ id: mg.genreId, name: mg.genreName })),
+		}))
+
+		const pagination = Pagination(page, limit, totalCount)
+
+		return res.send({
+			data: combinedResults,
+			meta: pagination,
+		})
+	} catch (error) {
+		console.error('Error fetching movies by genre:', error)
+		return res.status(500).send({ error: 'Failed to fetch movies by genre' })
+	}
+}
+
+export async function GetTopMovies(
+	req: FastifyRequest<{
+		Querystring: {
+			limit?: number
+		}
+	}>,
+	res: FastifyReply
+) {
+	try {
+		const limit = req.query.limit || 10
+
+		const topMovies = (await db
+			.select(getMovieSelectClause())
+			.from(movies)
+			.orderBy(applyMovieOrdering('rating', 'desc'))
+			.limit(limit)) as MovieType[]
+
+		if (!topMovies || topMovies.length === 0) {
+			return res.status(404).send({ error: 'No movies found' })
 		}
 
 		return res.send({
-			data: filteredMovies,
-			meta: Pagination(page, limit, totalCount),
+			data: topMovies,
 		})
+	} catch (error) {
+		console.error('Error fetching top movies:', error)
+		return res.status(500).send({ error: 'Failed to fetch top rated movies' })
 	}
-
-	const allMovies = await db
-		.select({
-			movies: {
-				id: movies.id,
-				title: movies.title,
-				description: movies.description,
-				releaseDate: movies.releaseDate,
-				rating: movies.rating,
-				image: movies.image,
-				trailer: movies.trailer,
-			},
-			genres: {
-				id: genres.id,
-				name: genres.name,
-			},
-		})
-		.from(movies)
-		.innerJoin(movieToGenre, eq(movies.id, movieToGenre.movieId))
-		.innerJoin(genres, eq(movieToGenre.genreId, genres.id))
-		.where(eq(genres.id, genre))
-		.limit(limit)
-		.offset((page - 1) * limit)
-
-	const [totalResult] = await db
-		.select({ total: count() })
-		.from(movies)
-		.innerJoin(movieToGenre, eq(movies.id, movieToGenre.movieId))
-		.where(eq(movieToGenre.genreId, genre))
-
-	if (!totalResult) {
-		return res.status(500).send({ error: 'Failed to fetch total count' })
-	}
-
-	const totalCount = totalResult.total
-
-	if (!allMovies || allMovies.length === 0) {
-		return res.status(404).send({ error: 'Movies not found' })
-	}
-
-	return res.send({
-		data: allMovies,
-		meta: Pagination(page, limit, totalCount),
-	})
 }
 
 const movieSchema = z.object({
