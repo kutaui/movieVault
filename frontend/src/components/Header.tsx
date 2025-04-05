@@ -19,7 +19,7 @@ function Header() {
 	]
 
 	return (
-		<header className="text-white/70 font-semibold p-4 relative">
+		<header className="text-white font-semibold p-4 relative z-10  max-w-[1280px] mx-auto">
 			<div className="flex gap-4 justify-between items-center pb-4">
 				<h3 className="">MovieVault</h3>
 				<nav className="gap-6 flex">
@@ -30,7 +30,7 @@ function Header() {
 								key={item.name}
 								href={item.href}
 								className={`hover:text-white relative ${
-									isActive ? 'text-white' : ''
+									isActive ? 'text-white' : 'text-white/70'
 								}`}
 							>
 								{item.name}
@@ -41,9 +41,15 @@ function Header() {
 						)
 					})}
 				</nav>
-				{!user && <Button>Deneme</Button>}
+				{!user && (
+					<div className="px-1.5">
+						<Button variant="destructive" className="">
+							Login
+						</Button>
+					</div>
+				)}
 				{user && (
-					<div className="flex items-center gap-6">
+					<div className="flex items-center gap-6 py-0.5">
 						<Search className="hover:cursor-pointer" />
 						<Avatar>
 							<AvatarImage src="https://github.com/shadcn.png" />

@@ -3,9 +3,11 @@ import { Hero } from '@/components/Hero'
 
 export default function Home() {
 	return (
-		<div className="">
+		<main className="">
 			<Header />
-			<Hero />
-		</div>
+			<div className="-mt-21">
+				<Hero />
+			</div>
+		</main>
 	)
 }
