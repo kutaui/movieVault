@@ -50,7 +50,7 @@ function Header() {
 				)}
 				{user && (
 					<div className="flex items-center gap-6 py-0.5">
-						<Search className="hover:cursor-pointer" />
+						<Search className="cursor-pointer" />
 						<Avatar>
 							<AvatarImage src="https://github.com/shadcn.png" />
 							<AvatarFallback>CN</AvatarFallback>
